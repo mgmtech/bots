@@ -1,3 +1,8 @@
+# TODO: Create a gopy configuration file to expose the registry
+
+# from gobots import bots
+# bots['parrot'].frontend
+
 frontend = "ipc://parrotbackend.ipc"
 
 import zmq
