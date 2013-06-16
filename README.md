@@ -10,7 +10,7 @@ configuration and 0mq implementation.
 Bots
 ----
 
- **Parrot** -> Chirps out github compare diff urls when web post-commit hooks are 
+**Parrot** -> Chirps out github compare diff urls when web post-commit hooks are 
 configured on github.com for a repo..
 
 
@@ -23,7 +23,7 @@ Matz.  I did my best to combine both reactor patterns, its tricky stuff..
 * Don't enable more than 1 worker!
 
 
- **WebVu**   -> First foray into bots and using CGo.. Matz source code really 
+**WebVu**   -> First foray into bots and using CGo.. Matz source code really 
 opened a few doors. Its astounding that the barrier to entry for C integration
 is so low. 
 
