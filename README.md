@@ -10,6 +10,7 @@ configuration and 0mq implementation.
 Bots
 ====
 
+
 **Parrot**
 ----------
 Chirps out github compare diff urls when web post-commit hooks are 
@@ -29,18 +30,18 @@ Matz.  I did my best to combine both reactor patterns, its tricky stuff..
 
 **WebVu**
 ---------
-First foray into bots and using CGo.. Matz source code really 
-opened a few doors. Its astounding that the barrier to entry for C integration
-is so low. 
+Its astounding that the barrier to entry for C integration
+is so low.. enlightening 
 
 * not thread safe
 * Don't enable more than1 worker!
 
 
 Wish List
----------
+=========
 
 Expose functionality using gopy to research the possibilities of using native
+
 CSP routines in a python environment. For idempotent code determine if a solution 
 for avoiding GIL threading limitations ? 
 
