@@ -58,7 +58,7 @@ import (
 	"strings"
 )
 
-import registry "github.com/mgmtech/gobot/bots"
+import "github.com/mgmtech/bots/registry"
 
 var Registry = registry.RegEntry{
 	Name:     "webvu",

@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"text/template"
 
-	registry "github.com/mgmtech/gobot/bots/registry"
+	"github.com/mgmtech/bots/registry"
 	zmq "github.com/pebbe/zmq3"
 )
 
