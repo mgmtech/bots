@@ -21,6 +21,7 @@ import (
 	"github.com/mattn/go-webkit/webkit"
 	zmq "github.com/pebbe/zmq3"
 
+    "fmt"
 	"log"
 	"os"
 	"strings"
@@ -32,7 +33,7 @@ import "github.com/mgmtech/bots/registry"
 var Registry = registry.RegEntry{
 	Name:     "burt",
 	Port:     557,
-	Fend:     "tcp://127.0.0.1:557",
+    Fend:     "ipc://burtfrontend.ipc",
 	Bend:     "ipc://burtbackend.ipc",
 	Commands: nil,
 	Settings: map[string]string{
@@ -56,6 +57,9 @@ func retire_window(w *gtk.Window, chd chan bool) {
 	defer w.Emit("destroy")
 }
 
+
+func info(msg string) { log.Print("(burt) ", msg) }
+
 //  Worker using REQ socket to do load-balancing
 //
 func worker_task() {
@@ -65,6 +69,7 @@ func worker_task() {
 	defer worker.Close()
 	worker.Connect(Registry.Bend)
 
+    info("WorkerReady")
 	//  Tell broker we're ready for work
 	worker.SendMessage(Registry.WorkerReady)
 
@@ -72,10 +77,10 @@ func worker_task() {
 	for {
 		msg, e := worker.RecvMessage(0)
 		if e != nil {
-			log.Printf("Worker encountered error %v", e)
-			break //  Interrupted
+			log.Fatal("Worker encountered error", e)
 		}
 
+        info("Message received")
 		parts := strings.Split(msg[2], " ")
 		if len(parts) == 2 {
 			// Gtk Initialize
@@ -88,8 +93,9 @@ func worker_task() {
 
 			url := parts[0]
 			file := parts[1]
-			log.Printf("Conversion task accepted")
-			log.Printf("Converting url %v to file %v", url, file)
+			
+            info("Conversion task accepted")
+			info(fmt.Sprintf("Converting url %v to file %v", url, file))
 
 			vbox := openUrl(chDone, url)
 			worker_window.Add(vbox)
@@ -98,7 +104,7 @@ func worker_task() {
 			defer worker_window.Emit("destroy")
 
 			gtk.MainIteration()
-			log.Print("First Gtk Loop iteration complete, sending done")
+			info("First Gtk Loop iteration complete, sending done")
 		}
 
 		if ret == 1 {
@@ -114,7 +120,7 @@ func worker_task() {
 func gtkLoop() {
 	for gtk.EventsPending() == true {
 		gtk.MainIterationDo(false)
-		log.Print(".")
+		info(".")
 	}
 }
 
@@ -134,7 +140,7 @@ func openUrl(chDone chan bool, url string) *gtk.VBox {
 	webview.Connect("load-finished", func() {
 		// capture pnd and quit
 		gtkLoop()
-		log.Print("Outputting imag")
+		info("Outputting imag")
 		chDone <- true
 	})
 	swin.Add(webview)
@@ -159,8 +165,9 @@ func openUrl(chDone chan bool, url string) *gtk.VBox {
 	return vbox
 }
 
-func main() {
+func SrvStart() {
 
+    info("Starting Burt ")
 	lbbroker := &lbbroker_t{}
 	lbbroker.frontend, _ = zmq.NewSocket(zmq.ROUTER)
 	lbbroker.backend, _ = zmq.NewSocket(zmq.ROUTER)
@@ -170,6 +177,7 @@ func main() {
 	lbbroker.backend.Bind(Registry.Bend)
 
 	for worker_nbr := 0; worker_nbr < Registry.Workers; worker_nbr++ {
+       info(fmt.Sprintf("Spawn wokrer %i", worker_nbr))
 		go worker_task()
 	}
 
@@ -199,6 +207,7 @@ func handle_frontend(lbbroker *lbbroker_t) error {
 	lbbroker.backend.SendMessage(lbbroker.workers[0], "", msg)
 	lbbroker.workers = lbbroker.workers[1:]
 
+    info(fmt.Sprintf("Frontend ", msg))
 	//  Cancel reader on frontend if we went from 1 to 0 workers
 	if len(lbbroker.workers) == 0 {
 		lbbroker.reactor.RemoveSocket(lbbroker.frontend)
@@ -216,7 +225,8 @@ func handle_backend(lbbroker *lbbroker_t) error {
 	identity, msg := unwrap(msg)
 	lbbroker.workers = append(lbbroker.workers, identity)
 
-	//  Enable reader on frontend if we went from 0 to 1 workers
+    info(fmt.Sprintf("Backend ", msg))
+    //  Enable reader on frontend if we went from 0 to 1 workers
 	if len(lbbroker.workers) == 1 {
 		lbbroker.reactor.AddSocket(lbbroker.frontend, zmq.POLLIN,
 			func(e zmq.State) error { return handle_frontend(lbbroker) })
@@ -241,4 +251,9 @@ func unwrap(msg []string) (head string, tail []string) {
 		tail = msg[1:]
 	}
 	return
+}
+
+
+func main () {
+    SrvStart()
 }

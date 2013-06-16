@@ -1,4 +1,4 @@
-frontend = "tcp://localhost:5555"
+frontend = "ipc://burtfrontend.ipc"
 
 sites_test = [
     'http://www.google.com/',
