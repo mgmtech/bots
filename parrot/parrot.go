@@ -1,4 +1,4 @@
-package parrot
+package main
 
 /*
 ParrotBot
@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/mgmtech/bots/registry"
+	"github.com/mgmtech/gobots/registry"
 	zmq "github.com/pebbe/zmq3"
 )
 
@@ -132,4 +132,10 @@ func SrvStart() {
 
 	log.Fatal(http.ListenAndServe(":"+Registry.Settings["GITPUSHPORT"], nil))
 
+}
+
+
+func main () {
+
+    SrvStart()
 }
