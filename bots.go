@@ -4,24 +4,23 @@ Main config for bots
 */
 import "log"
 
-import "github.com/mgmtech/bots/registry"
+import "github.com/mgmtech/gobots/registry"
 
 // Import the bots
-import "github.com/mgmtech/bots/parrot"
-//import burt "github.com/mgmtech/gobot/bots/burt"
-//import webvu "github.com/mgmtech/gobot/bots/webvu"
+import parrot "github.com/mgmtech/gobots/parrot"
+import burt "github.com/mgmtech/gobots/burt"
+import webvu "github.com/mgmtech/gobots/webvu"
 
 
 // main botmap
 var Registry = registry.BotRegistry{
 	"parrot": parrot.Registry,
- //   "burt": burt.Registry,
-   // "webvu": webvu.Registry,
+    "burt": burt.Registry,
+    "webvu": webvu.Registry,
 }
 
 func Start() {
     for k, v := range Registry {
-    
             log.Print(k,v)
     }
 }

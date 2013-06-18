@@ -1,4 +1,4 @@
-frontend = "ipc://frontend.ipc"
+frontend = "ipc://webvufrontend.ipc"
 
 sites_test = [
     'http://www.google.com/',

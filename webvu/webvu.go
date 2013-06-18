@@ -1,4 +1,4 @@
-package webvu
+package main
 
 /*
 #include <stdio.h>
@@ -54,16 +54,19 @@ import "unsafe"
 import (
 	zmq "github.com/pebbe/zmq3"
 
+    "fmt"
 	"log"
 	"strings"
 )
 
-import "github.com/mgmtech/bots/registry"
+import "github.com/mgmtech/gobots/registry"
+
+func info(msg string) { log.Print("(webvu) ", msg) }
 
 var Registry = registry.RegEntry{
 	Name:     "webvu",
 	Port:     558,
-	Fend:     "tcp://127.0.0.1:558",
+	Fend:     "ipc://webvufrontend.ipc",
 	Bend:     "ipc://webvubackend.ipc",
 	Commands: nil,
 	Settings: map[string]string{
@@ -84,7 +87,7 @@ wrapper around gtk-webkit-png
 
 func url2png(source string, destination string, format string) int {
 
-	log.Print("Calling GtkWebKit conversion task")
+	info("Calling GtkWebKit conversion task")
 	// I have serious doubts about thread safety here..
 	cSrc := C.CString(source)
 	cDst := C.CString(Registry.Settings["DESTFOLDERPREFIX"] + destination)
@@ -99,7 +102,8 @@ func url2png(source string, destination string, format string) int {
 	return int(C.url2png(cSrc, cDst, cFmt))
 }
 
-func main() {
+func SrvStart() {
+    info("Starting up")
 	lbbroker := &lbbroker_t{}
 	lbbroker.frontend, _ = zmq.NewSocket(zmq.ROUTER)
 	lbbroker.backend, _ = zmq.NewSocket(zmq.ROUTER)
@@ -139,12 +143,12 @@ func worker_task() {
 	for {
 		msg, e := worker.RecvMessage(0)
 		if e != nil {
-			log.Printf("Worker encountered error %v", e)
+			info(fmt.Sprintf("Worker encountered error %v", e))
 			break //  Interrupted
 		}
-		log.Printf("%v %v", msg, e)
+		info(fmt.Sprintf("%v %v", msg, e))
 		parts := strings.Split(msg[2], " ")
-		log.Printf("%v", parts)
+		info(fmt.Sprint("%v", parts))
 		if len(parts) == 2 {
 			url := parts[0]
 			file := parts[1]
@@ -226,4 +230,9 @@ func unwrap(msg []string) (head string, tail []string) {
 		tail = msg[1:]
 	}
 	return
+}
+
+
+func main() {
+    SrvStart()
 }

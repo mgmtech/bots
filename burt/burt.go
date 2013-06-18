@@ -28,7 +28,7 @@ import (
 	"time"
 )
 
-import "github.com/mgmtech/bots/registry"
+import "github.com/mgmtech/gobots/registry"
 
 var Registry = registry.RegEntry{
 	Name:     "burt",

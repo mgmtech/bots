@@ -39,6 +39,7 @@ type RegEntry struct {
 	Settings    settings   // settings specific to the gobot
 	WorkerReady string     // Worker Ready signal
 	Workers     int        // Number of workers
+    Server      ZmqServer
     Zeromq      ZMQ
 }
 
