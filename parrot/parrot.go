@@ -23,7 +23,9 @@ import (
 	zmq "github.com/pebbe/zmq3"
 )
 
-var Registry = registry.RegEntry{
+type RegEntry registry.RegEntry
+
+var Registry = RegEntry{
 	Name:     "parrot",
 	Port:     556,
 	Fend:     "",

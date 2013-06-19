@@ -1,5 +1,4 @@
 package registry
-import zmq "github.com/pebbe/zmq3"
 /*
 
  The registry is a centralized configuration for gobots
@@ -17,19 +16,6 @@ dynamicall load them (not possible without forking?)
 type commandMap map[string]map[int]func() interface{}
 type settings map[string]string
 
-type ZmqServer interface {
-    SrvStart()
-}
-
-type ZmqClient interface {
-    CliStart() *zmq.Socket
-}
-
-type ZMQ interface {
-    ZmqServer
-    ZmqClient
-}
-
 type RegEntry struct {
 	Fend        string     // the 0mq front-end (*If applicable*)
 	Bend        string     // the 0mq back-end
@@ -39,8 +25,8 @@ type RegEntry struct {
 	Settings    settings   // settings specific to the gobot
 	WorkerReady string     // Worker Ready signal
 	Workers     int        // Number of workers
-    Server      ZmqServer
-    Zeromq      ZMQ
+    Client      *func()
+    Server      *func()
 }
 
 type BotRegistry map[string]RegEntry
