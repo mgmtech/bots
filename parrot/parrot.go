@@ -114,7 +114,7 @@ func SrvStart() {
 	http.HandleFunc("/post-receive",
 		func(w http.ResponseWriter, r *http.Request) {
 			payload := r.FormValue("payload")
-			log.Printf("Received github.com payload from github")
+			info("Received github.com payload from github")
 
 			var m GitWebHookPayload
 
@@ -125,8 +125,8 @@ func SrvStart() {
 			}
 
 			m.CompBranch = Registry.Settings["GITDIFFBRANCH"]
-			var resp_str = fmt.Sprintf("(parrot) %v pushed changes to %v, %v",
-				m.Commits[0].Author.Name, m.Repository.Name, m)
+			var resp_str = fmt.Sprintf("(parrot) %v, %v",
+				 m.Repository.Name, m)
 
 			log.Printf("%v", resp_str)
 			client.Send(resp_str, 0)
