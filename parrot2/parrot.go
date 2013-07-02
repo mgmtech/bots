@@ -23,9 +23,9 @@ import (
 	zmq "github.com/pebbe/zmq3"
 )
 
-type RegEntry registry.RegEntry
+//type RegEntry registry.RegEntry
 
-var Registry = RegEntry{
+var Registry = registry.RegEntry{
 	Name:     "parrot",
 	Port:     556,
 	Fend:     "",
@@ -35,7 +35,55 @@ var Registry = RegEntry{
 		"GITPUSHPORT":   "8085",
 		"GITDIFFBRANCH": "develop",
 	},
+    Client: func () *zmq.Socket {
+        client, err := zmq.NewSocket(zmq.SUB)
+        if err != nil {
+            log.Fatal("Problem connection to front-end")
+        }
+    },
 }
+
+	client.Connect(Registry.Bend)
+	client.SetSubscribe("")
+
+	return client
+}
+
+func (r RegEntry) SrvStart() {
+	// Link up publisher socket, could use Multicast here..
+	client, err := zmq.NewSocket(zmq.PUB)
+	if err != nil {
+		log.Fatal("FAiled to connect push front-end %v", Registry.Bend)
+	}
+	defer client.Close()
+	client.Bind(Registry.Bend)
+
+	// Handle the post-receive from github.com..
+	http.HandleFunc("/post-receive",
+		func(w http.ResponseWriter, r *http.Request) {
+			payload := r.FormValue("payload")
+			info("Received github.com payload from github")
+
+			var m GitWebHookPayload
+
+			err := json.Unmarshal([]byte(payload), &m)
+
+			if err != nil {
+				log.Println("Error unpacking json:", err)
+			}
+
+			m.CompBranch = Registry.Settings["GITDIFFBRANCH"]
+			var resp_str = fmt.Sprintf("(parrot) %v, %v",
+				 m.Repository.Name, m)
+
+			log.Printf("%v", resp_str)
+			client.Send(resp_str, 0)
+		})
+
+	log.Fatal(http.ListenAndServe(":"+Registry.Settings["GITPUSHPORT"], nil))
+
+}
+
 
 /* Structs to map to the git post-receiver web hook payload */
 type GitAuthor struct {
@@ -89,55 +137,8 @@ func (payload GitWebHookPayload) String() string {
 	return fmt.Sprintf("%v", buff)
 }
 
-func CliStart() *zmq.Socket {
-	client, err := zmq.NewSocket(zmq.SUB)
-	if err != nil {
-		log.Fatal("Problem connection to front-end")
-	}
-
-	client.Connect(Registry.Bend)
-	client.SetSubscribe("")
-
-	return client
-}
-
-func SrvStart() {
-	// Link up publisher socket, could use Multicast here..
-	client, err := zmq.NewSocket(zmq.PUB)
-	if err != nil {
-		log.Fatal("FAiled to connect push front-end %v", Registry.Bend)
-	}
-	defer client.Close()
-	client.Bind(Registry.Bend)
-
-	// Handle the post-receive from github.com..
-	http.HandleFunc("/post-receive",
-		func(w http.ResponseWriter, r *http.Request) {
-			payload := r.FormValue("payload")
-			info("Received github.com payload from github")
-
-			var m GitWebHookPayload
-
-			err := json.Unmarshal([]byte(payload), &m)
-
-			if err != nil {
-				log.Println("Error unpacking json:", err)
-			}
-
-			m.CompBranch = Registry.Settings["GITDIFFBRANCH"]
-			var resp_str = fmt.Sprintf("(parrot) %v, %v '%v'-> %v",
-				 m.Repository.Name, m.Commits[0].Author.Name, m.Commits[0].Message, m)
-
-			log.Printf("%v", resp_str)
-			client.Send(resp_str, 0)
-		})
-
-	log.Fatal(http.ListenAndServe(":"+Registry.Settings["GITPUSHPORT"], nil))
-
-}
-
 
 func main () {
 
-    SrvStart()
+    Registry.SrvStart()
 }

@@ -25,12 +25,19 @@ type RegEntry struct {
 	Settings    settings   // settings specific to the gobot
 	WorkerReady string     // Worker Ready signal
 	Workers     int        // Number of workers
-    Client      *func()
-    Server      *func()
+    Client      func()
+    Server      func()
 }
 
 type BotRegistry map[string]RegEntry
 
+func (r RegEntry) CliStart() {
+    r.Client()
+}
+
+func (r RegEntry) SrvStart() {
+    r.Server()
+}
 /* Example RegEntry: parrot
  parrot registry entry, as this does not respond to commands and does not have
  a request socket commands and Frontend is nil.
