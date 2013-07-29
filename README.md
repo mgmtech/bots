@@ -7,6 +7,9 @@ Small go applications which leverage 0mq patterns for c&c and publishing.
 Design will eventually include a dynamic registry for registered bots, for c&c,
 configuration and 0mq implementation.
 
+TODO: Add a ping/pong command to the 0mq connection as it borks when the computer
+is put to sleep.
+
 Bots
 ====
 
