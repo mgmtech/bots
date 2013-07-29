@@ -124,6 +124,7 @@ func SrvStart() {
 				log.Println("Error unpacking json:", err)
 			}
 
+            log.Print(len(m.Commits))
 			m.CompBranch = Registry.Settings["GITDIFFBRANCH"]
 			var resp_str = fmt.Sprintf("(parrot) %v, %v '%v'-> %v",
 				 m.Repository.Name, m.Commits[0].Author.Name, m.Commits[0].Message, m)
