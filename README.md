@@ -10,6 +10,15 @@ configuration and 0mq implementation.
 TODO: Add a ping/pong command to the 0mq connection as it borks when the computer
 is put to sleep.
 
+
+Disovery Protocol
+-----------------
+
+Individual bots will attempt to pint-restablish a connection with a c&c server 
+which remit remot
+
+
+
 Bots
 ====
 
