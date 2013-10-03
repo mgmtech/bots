@@ -19,13 +19,12 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/mgmtech/gobots/registry"
+	registry "github.com/mgmtech/gobots/registry"
 	zmq "github.com/pebbe/zmq3"
 )
 
-type RegEntry registry.RegEntry
 
-var Registry = RegEntry{
+var RegistryEntry = registry.RegEntry{
 	Name:     "parrot",
 	Port:     556,
 	Fend:     "",
@@ -95,7 +94,7 @@ func CliStart() *zmq.Socket {
 		log.Fatal("Problem connection to front-end")
 	}
 
-	client.Connect(Registry.Bend)
+	client.Connect(RegistryEntry.Bend)
 	client.SetSubscribe("")
 
 	return client
@@ -105,10 +104,10 @@ func SrvStart() {
 	// Link up publisher socket, could use Multicast here..
 	client, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.Fatal("FAiled to connect push front-end %v", Registry.Bend)
+		log.Fatal("FAiled to connect push front-end %v", RegistryEntry.Bend)
 	}
 	defer client.Close()
-	client.Bind(Registry.Bend)
+	client.Bind(RegistryEntry.Bend)
 
 	// Handle the post-receive from github.com..
 	http.HandleFunc("/post-receive",
@@ -125,7 +124,7 @@ func SrvStart() {
 			}
 
             log.Print(len(m.Commits))
-			m.CompBranch = Registry.Settings["GITDIFFBRANCH"]
+			m.CompBranch = RegistryEntry.Settings["GITDIFFBRANCH"]
 			var resp_str = fmt.Sprintf("(parrot) %v, %v '%v'-> %v",
 				 m.Repository.Name, m.Commits[0].Author.Name, m.Commits[0].Message, m)
 
@@ -133,7 +132,7 @@ func SrvStart() {
 			client.Send(resp_str, 0)
 		})
 
-	log.Fatal(http.ListenAndServe(":"+Registry.Settings["GITPUSHPORT"], nil))
+	log.Fatal(http.ListenAndServe(":"+RegistryEntry.Settings["GITPUSHPORT"], nil))
 
 }
 

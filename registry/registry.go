@@ -34,13 +34,9 @@ type BotRegistry map[string]RegEntry
 func (r RegEntry) CliStart() {
     r.Client()
 }
-
-func (r RegEntry) SrvStart() {
-    r.Server()
-}
 /* Example RegEntry: parrot
  parrot registry entry, as this does not respond to commands and does not have
- a request socket commands and Frontend is nil.
+ a request socket commands and Frontend is nil. */
 var Registry = RegEntry{
     Name: "parrot",
     Port: 556,
@@ -52,4 +48,9 @@ var Registry = RegEntry{
         "GITDIFFBRANCH": "develop",
     },
 }
-*/
+// add other external deps
+
+
+func (r RegEntry) SrvStart() {
+
+}

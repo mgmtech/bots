@@ -4,12 +4,14 @@ Main config for bots
 */
 import "log"
 
-import "github.com/mgmtech/gobots/registry"
+import registry "github.com/mgmtech/gobots/registry"
 
+import parrot "github.com/mgmtech/gobots/parrot"
 
+type RegEntry registry.RegEntry
 
 var Registry = registry.BotRegistry{
-    "parrot": parrot.Registry,
+    "parrot": parrot.RegistryEntry,
 }
 
 func Start() {
